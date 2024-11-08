@@ -94,11 +94,13 @@ void set_pci_irqmap(u32 *bdfs, int *irq_ids, int count, u32 mask)
 void dump_pci_irqmap()
 {
     debug("PCI irqmap\n");
+#if CONF_logger_debug
     for (auto it = pci_irqmap.begin(); it != pci_irqmap.end(); ++it) {
         debug("Bus,Device,Function 0x%08x -> SPI irq 0x%04x\n",
               (*it).first, (*it).second);
         debug("B,D,F irqmap-mask   0x%08x\n", pci_irqmask);
     }
+#endif
 }
 
 static int get_pci_irq_from_bdfp(u32 bdfp)
