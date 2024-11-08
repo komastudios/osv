@@ -8,8 +8,9 @@ arch=arm64
 
 letter=${package_directory:0:1}
 
-ports_main_repo_url="http://ports.ubuntu.com/pool/main/$letter/$package_directory/"
-ports_universe_repo_url="http://ports.ubuntu.com/pool/universe/$letter/$package_directory/"
+vendor_mirror=${VENDOR_MIRROR:-"http://"}
+ports_main_repo_url="${vendor_mirror}ports.ubuntu.com/pool/main/$letter/$package_directory/"
+ports_universe_repo_url="${vendor_mirror}ports.ubuntu.com/pool/universe/$letter/$package_directory/"
 
 package_file_name=$(wget -t 1 -qO- $ports_main_repo_url | grep -Po "href=\"[^\"]*\"" | grep ${arch} | grep -Po "${package}[^\"]*" | tail -n 1)
 if [[ "${package_file_name}" == "" ]]; then

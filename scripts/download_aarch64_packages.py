@@ -73,7 +73,8 @@ def ubuntu_download_commands(boost_long_version):
     return ' && '.join(install_commands)
 
 def ubuntu_identify_boost_version(codename, index):
-    packages = subprocess.check_output(['wget', '-t', '1', '-qO-', 'http://ports.ubuntu.com/indices/override.%s.%s' % (codename, 'main')]).decode('utf-8')
+    vendor_mirror=os.getenv('VENDOR_MIRROR', 'http://'}
+    packages = subprocess.check_output(['wget', '-t', '1', '-qO-', '%sports.ubuntu.com/indices/override.%s.%s' % (vendor_mirror, codename, 'main')]).decode('utf-8')
     libboost_system_package = re.search("libboost-system\d+\.\d+\.\d+", packages)
     if libboost_system_package:
        libboost_system_package_name = libboost_system_package.group()

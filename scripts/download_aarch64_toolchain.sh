@@ -16,11 +16,13 @@ ARM64_TOOLCHAIN_DESTINATION="${ARM64_TOOLCHAIN_SCRIPTDIR}../build/downloaded_pac
 ARM64_TOOLCHAIN_VERSION=9.2-2019.12
 ARM64_TOOLCHAIN_FILENAME=gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu
 
+VENDOR_MIRROR=${VENDOR_MIRROR:-"https://"}
+
 if [ ! -d ${ARM64_TOOLCHAIN_DESTINATION}${ARM64_TOOLCHAIN_FILENAME} ]; then
     mkdir -p "${ARM64_TOOLCHAIN_DESTINATION}"
     pushd "${ARM64_TOOLCHAIN_DESTINATION}" >/dev/null
     if [ ! -s ${ARM64_TOOLCHAIN_FILENAME}.tar.xz ]; then
-        wget https://developer.arm.com/-/media/Files/downloads/gnu-a/${ARM64_TOOLCHAIN_VERSION}/binrel/${ARM64_TOOLCHAIN_FILENAME}.tar.xz
+        wget ${VENDOR_MIRROR}developer.arm.com/-/media/Files/downloads/gnu-a/${ARM64_TOOLCHAIN_VERSION}/binrel/${ARM64_TOOLCHAIN_FILENAME}.tar.xz
     fi
     tar -xf ${ARM64_TOOLCHAIN_FILENAME}.tar.xz
     popd >/dev/null
