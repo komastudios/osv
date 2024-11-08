@@ -11,6 +11,9 @@ LUA=lua5.3
 LUA_DIR=upstream/$(LUA)
 LUA_ROCKS=upstream/luarocks-3.1.1-linux-x86_64/luarocks
 
+SHELL  := env VENDOR_MIRROR=$(VENDOR_MIRROR) $(SHELL)
+VENDOR_MIRROR ?= "https://"
+
 MODULES_DIR=install/lua_modules
 LUA_ROCKS_INSTALL_MODULE := $(LUA_ROCKS) --lua-dir=$(LUA_DIR) install --no-doc --tree $(MODULES_DIR)
 
@@ -30,13 +33,13 @@ module: $(LUA_MODULES)
 # Download lua interpreter from lua binaries
 $(LUA_DIR)/lua53:
 	mkdir -p $(LUA_DIR)
-	cd upstream && wget -c "https://sourceforge.net/projects/luabinaries/files/5.3.6/Tools%20Executables/lua-5.3.6_Linux54_64_bin.tar.gz"
+	cd upstream && wget -c "$(VENDOR_MIRROR)sourceforge.net/projects/luabinaries/files/5.3.6/Tools%20Executables/lua-5.3.6_Linux54_64_bin.tar.gz"
 	cd $(LUA_DIR) && tar xf ../lua-5.3.6_Linux54_64_bin.tar.gz
 
 # Download lua shared library and header files from lua binaries
 $(LUA_DIR)/liblua53.so:
 	mkdir -p $(LUA_DIR)
-	cd upstream && wget -c "https://sourceforge.net/projects/luabinaries/files/5.3.6/Linux%20Libraries/lua-5.3.6_Linux54_64_lib.tar.gz"
+	cd upstream && wget -c "$(VENDOR_MIRROR)sourceforge.net/projects/luabinaries/files/5.3.6/Linux%20Libraries/lua-5.3.6_Linux54_64_lib.tar.gz"
 	cd $(LUA_DIR) && tar xf ../lua-5.3.6_Linux54_64_lib.tar.gz
 
 # In order for luarocks to use the downloaded version of lua in upstream, we need to create a config file below
@@ -48,7 +51,7 @@ upstream/config.lua:
 
 $(LUA_ROCKS): $(LUA_DIR)/lua53 $(LUA_DIR)/liblua53.so upstream/config.lua
 	mkdir -p upstream
-	cd upstream && wget -c "https://luarocks.github.io/luarocks/releases/luarocks-3.1.1-linux-x86_64.zip"
+	cd upstream && wget -c "$(VENDOR_MIRROR)luarocks.github.io/luarocks/releases/luarocks-3.1.1-linux-x86_64.zip"
 	cd upstream && unzip luarocks-3.1.1-linux-x86_64.zip
 	touch $(LUA_ROCKS) #To prevent re-running the rule in case $(LUA_ROCKS) is older than $(LUA_DIR)/liblua53.so and/or $(LUA_DIR)/lua53
 
