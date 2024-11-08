@@ -11,6 +11,7 @@
 #include <map>
 #include <string>
 #include <cstdarg>
+#include <cassert>
 #include <osv/debug.h>
 #include <osv/mutex.h>
 #include <osv/printf.hh>
