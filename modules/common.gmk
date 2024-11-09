@@ -58,6 +58,7 @@ CC=$(CROSS_PREFIX)gcc
 LD=$(CROSS_PREFIX)ld.bfd
 export STRIP=$(CROSS_PREFIX)strip
 OBJCOPY=$(CROSS_PREFIX)objcopy
+export LDD=$(CROSS_PREFIX)ldd
 
 #
 # Let us detect presence of standard C++ headers

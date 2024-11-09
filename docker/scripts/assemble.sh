@@ -57,6 +57,9 @@ for b_arch in "${ARCHS[@]}"; do
   echo "  Loader path: ${SRC_DIR}/loader.img"
 done
 
-# if [[ " ${ARCHS[@]} " =~ " x64 " ]]; then
-#   ./scripts/run.py --arch=x86_64 --dry-run
-# fi
+if [[ " ${ARCHS[@]} " =~ " x64 " ]]; then
+  ./scripts/run.py --arch=x86_64 --dry-run
+fi
+if [[ " ${ARCHS[@]} " =~ " aarch64 " ]]; then
+  ./scripts/run.py --arch=aarch64 --dry-run
+fi

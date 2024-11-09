@@ -41,7 +41,7 @@ add_api_to_manifest = \
 	echo "/usr/mgmt/plugins/libhttpserver-$(1).so: $(module_out)/libhttpserver-$(1).so" > _usr_$(1).manifest
 
 add_boost_dependencies_to_manifest = \
-	ldd $(module_out)/libhttpserver-$(1).so | grep boost | sed 's/ *[^ ] *\(.*\) => \(.*\) .*/\/usr\/lib\/\1: \2/' > _usr_$(1)_boost.manifest
+	$(LDD) $(module_out)/libhttpserver-$(1).so | grep boost | sed 's/ *[^ ] *\(.*\) => \(.*\) .*/\/usr\/lib\/\1: \2/' > _usr_$(1)_boost.manifest
 
 api_%: $(module_out)/libhttpserver-api_%.so
 	$(call quiet, $(call add_api_to_manifest,$@), APPEND_TO_MANIFEST $@)
@@ -55,7 +55,7 @@ $(TARGET): $(OBJ_FILES) $(STUB_FILES)
 
 $(module_out)/lib$(TARGET).so: $(OBJ_FILES)
 	$(call quiet, $(CXX) $(CXXFLAGS) -shared $(STATIC_LIBS) -o $@ $^ $(DYN_LIBS), LINK $@)
-	$(call very-quiet, ldd $@ | grep boost | sed 's/ *[^ ] *\(.*\) => \(.*\) .*/\/usr\/lib\/\1: \2/' > _usr_$(TARGET).manifest)
+	$(call very-quiet, $(LDD) $@ | grep boost | sed 's/ *[^ ] *\(.*\) => \(.*\) .*/\/usr\/lib\/\1: \2/' > _usr_$(TARGET).manifest)
 
 $(module_out)/libhttpserver-api_%.so: $(module_out)/autogen/%.json.o $(module_out)/api/%.o
 	$(call quiet, $(CXX) $(CXXFLAGS) -shared $(STATIC_LIBS) -o $@ $^ $(DYN_LIBS), LINK $@)

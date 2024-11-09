@@ -10,9 +10,18 @@
 
 NAME=$1
 
-MACHINE=$(uname -m)
-if [ "${MACHINE}" == "x86_64" ]; then
+HOST_MACHINE=$(uname -m)
+MACHINE=${ARCH:-$HOST_MACHINE}
+
+if [[ $MACHINE =~ x64|x86_64 ]]; then
 	MACHINE="x86-64"
+	LD_ROOT_PATH="/usr/lib/x86_64-linux-gnu"
+elif [[ $MACHINE =~ arm64|aarch64 ]]; then
+	MACHINE="aarch64"
+	LD_ROOT_PATH="/usr/lib/aarch64-linux-gnu"
+else
+	echo "Unsupported architecture: $MACHINE" >&2
+	exit 1
 fi
 
 argv0=${0##*/}
@@ -44,6 +53,13 @@ find_library()
 {
 	local pattern="$1"
 	local count=$(ldconfig -p | grep -P "$pattern" | grep "${MACHINE}" | wc -l)
+
+  so_root_path=$LD_ROOT_PATH/$pattern
+	if [[ $count == 0 ]] && [[ -f "$so_root_path" ]]; then
+		so_name=$(basename $so_root_path)
+		so_path=$(realpath $so_root_path)
+		return 0
+	fi
 
 	if [[ $count == 0 && $IGNORE_MISSING == false ]]; then
 		echo "Could not find any so file matching $pattern" >&2
@@ -177,7 +193,8 @@ if [[ -f $NAME_OR_PATH ]]; then
 		REAL_PATH=$(realpath $NAME_OR_PATH)
 		output_manifest "$REAL_PATH" "$REAL_PATH"
 	else
-		echo "The $NAME_OR_PATH is not ELF" >&2
+		echo "The $NAME_OR_PATH is not ELF (machine: $MACHINE, arch: $ARCH)" >&2
+		echo "file info: $(file -L $NAME_OR_PATH)" >&2
 		exit 1
 	fi
 else

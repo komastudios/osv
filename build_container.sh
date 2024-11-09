@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# example usage:
+#
+#   ./build_container.sh image=httpserver-html5-gui-and-cli.fg host
+
+
 BUILDER_TAG=${BUILDER_TAG:-komastudios/osv}
 
 show_usage() {

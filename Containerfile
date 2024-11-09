@@ -29,6 +29,9 @@ RUN dpkg --add-architecture arm64 \
         libstdc++-11-dev-arm64-cross \
         libstdc++6-arm64-cross \
         openssl:arm64 \
+        libselinux1:arm64 \
+        zlib1g:arm64 \
+        liblzma5:arm64 \
         libssl-dev:arm64 \
         libedit-dev:arm64 \
         libncurses5-dev:arm64 \
@@ -67,9 +70,11 @@ RUN chmod u+x /usr/local/bin/capstan
 
 COPY scripts/download_aarch64_packages.py \
      scripts/download_ubuntu_aarch64_deb_package.sh \
+     scripts/cross-compile-ldd \
      /osv/scripts/
 
-RUN scripts/download_aarch64_packages.py \
+RUN cp /osv/scripts/cross-compile-ldd /usr/bin/aarch64-linux-gnu-ldd \
+ && scripts/download_aarch64_packages.py \
  && ln -s libyaml-cpp.so.0.7 /usr/lib/aarch64-linux-gnu/libyaml-cpp.so
 
 ## --- build environment (including sources)
