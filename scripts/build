@@ -239,6 +239,7 @@ echo "Host arch: $host_arch"
 echo "Target arch: $arch"
 
 CC=gcc
+CXX=g++
 if [[ "$host_arch" == "x86_64" && "$arch" == 'aarch64' ]]; then
 		echo "Cross-compiling for aarch64 from x86_64"
     CC=${CROSS_PREFIX:-aarch64-linux-gnu-}gcc
@@ -270,6 +271,9 @@ libgcc_s_dir=$(dirname $(readlink -f ${libgcc_s_path}))
 	export fs_type mode OSV_BUILD_PATH libgcc_s_dir
 	# Other variables we wanted to rename, I don't know why
 	export ARCH=$arch OSV_BASE=$SRC
+	export CC
+	export CXX
+	export CROSS_PREFIX
 	# Run what we wanted to run. It will inherit everything we exported above.
 	scripts/module.py $j_arg build -c "$modules" $usrskel_arg $no_required_arg
 )
