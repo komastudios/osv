@@ -281,6 +281,9 @@ libgcc_s_dir=$(dirname $(readlink -f ${libgcc_s_path}))
 	export ARCH=$arch OSV_BASE=$SRC
 	export CC
 	export CXX
+	export LD
+	export STRIP
+	export OBJCOPY
 	export CROSS_PREFIX
 	# Run what we wanted to run. It will inherit everything we exported above.
 	scripts/module.py $j_arg build -c "$modules" $usrskel_arg $no_required_arg
