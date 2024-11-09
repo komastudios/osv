@@ -40,11 +40,13 @@ for b_arch in "${ARCHS[@]}"; do
   
   if [ "${b_arch}" == "aarch64" ]; then
     b_target=uush
+    img_name=disk.img
   else
     b_target=default
+    img_name=usr.img
   fi
 
-  b_cmd='./scripts/build -j$(nproc) arch=${b_arch} image=${b_image} && ./scripts/convert raw'
+  b_cmd='./scripts/build -j$(nproc) arch=${b_arch} image=${b_image}'
 
   CONTAINER_ID=$(podman create \
     -it \
@@ -68,14 +70,14 @@ for b_arch in "${ARCHS[@]}"; do
   SRC_DIR="${SRC_ROOT}/build/release.${b_arch}"
   SRC_PATH="${SRC_DIR}/osv.raw"
   
-  DST_NAME="osv-${TARGET_REF}.${b_arch}.raw"
+  DST_NAME="osv-${TARGET_REF}.${b_arch}"
 
-  echo "Copying image: ${CONTAINER_ID}:${SRC_DIR}/osv.raw -> ${DST_ROOT}/${DST_NAME}"
+  echo "Copying image: ${CONTAINER_ID}:${SRC_DIR}/${img_name} -> ${DST_ROOT}/${DST_NAME}.img"
   mkdir -p ${DST_ROOT}
+  podman cp ${CONTAINER_ID}:${SRC_DIR}/${img_name} ${DST_ROOT}/${DST_NAME}.img
   podman cp ${CONTAINER_ID}:${SRC_DIR}/loader.img ${DST_ROOT}/loader.${b_arch}.img
   podman cp ${CONTAINER_ID}:${SRC_DIR}/loader.elf ${DST_ROOT}/loader.${b_arch}.elf
   podman cp ${CONTAINER_ID}:${SRC_DIR}/loader-stripped.elf ${DST_ROOT}/loader-stripped.${b_arch}.elf
-  podman cp ${CONTAINER_ID}:${SRC_DIR}/osv.raw ${DST_ROOT}/${DST_NAME}
   if [ $? -ne 0 ]; then
     echo "Failed to copy image from container"
     exit 1
