@@ -17,11 +17,12 @@ if [[ "${BUILD_ARGS[@]}" == *"arch="* ]]; then
   exit 1
 fi
 
-ARCHS=()
-if [ -z "${ARCH}" ]; then
-  ARCHS+=(x64 aarch64)
-else
-  ARCHS+=(${ARCH})
+ARCHS=(x64)
+if [ -z "${ARCH}" ] || [ "${ARCH}" == "aarch64" ]; then
+  ARCHS+=(aarch64)
+elif [ "${ARCH}" != "x64" ]; then
+  echo "Unsupported ARCH argument: ${ARCH}"
+  exit 1
 fi
 
 for b_arch in "${ARCHS[@]}"; do
@@ -40,26 +41,23 @@ for b_arch in "${ARCHS[@]}"; do
   export TAR_OPTIONS=--no-same-owner # podman rootless bugfix
 
   ./scripts/build -j$(nproc) arch=${b_arch} "${BUILD_ARGS[@]}" || exit 1
+  ./scripts/run.py --arch=${qemu_arch} --dry-run > ${SRC_ROOT}/build/release.${b_arch}/qemu.cmdline
 done
 
 for b_arch in "${ARCHS[@]}"; do
-  if [ "${b_arch}" == "aarch64" ]; then
-    img_name=disk.img
-  else
-    img_name=usr.img
-  fi
-
   SRC_DIR="${SRC_ROOT}/build/release.${b_arch}"
+
+  if [ ! -d "${SRC_DIR}" ]; then
+    continue
+  fi
 
   echo ""
   echo "Image built (${b_arch})"
-  echo "  Image path: ${SRC_DIR}/${img_name}"
+  echo "  Image path: ${SRC_DIR}/usr.img"
   echo "  Loader path: ${SRC_DIR}/loader.img"
-done
 
-if [[ " ${ARCHS[@]} " =~ " x64 " ]]; then
-  ./scripts/run.py --arch=x86_64 --dry-run
-fi
-if [[ " ${ARCHS[@]} " =~ " aarch64 " ]]; then
-  ./scripts/run.py --arch=aarch64 --dry-run
-fi
+  qemu_cmd=${SRC_DIR}/qemu.cmdline
+  if [ -f "${qemu_cmd}" ]; then
+    echo "  QEMU command line: $(cat ${qemu_cmd})"
+  fi
+done

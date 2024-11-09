@@ -8,12 +8,10 @@
 BUILDER_TAG=${BUILDER_TAG:-komastudios/osv}
 
 show_usage() {
-  echo "Usage: $0 <host|x64|aarch64|all>"
+  echo "Usage: $0 [image=<image_name>] [fs=<zfs|rofs|rofs_with_zfs|ramfs|virtiofs>]"
 }
 
 BUILD_ARGS=()
-
-TARGET=""
 
 for arg in "$@"; do
   case $arg in
@@ -27,16 +25,12 @@ for arg in "$@"; do
       BUILD_ARGS+=($arg)
       ;;
     *)
-      key=""
-      TARGET=$arg
+      echo "Unknown argument: $arg"
+      show_usage
+      exit 1
       ;;
   esac
 done
-
-if [ -z "${TARGET}" ]; then
-  show_usage
-  exit 1
-fi
 
 if [ "$(uname -m)" != "x86_64" ]; then
   echo "This script must be run on an x86_64 host"
@@ -52,23 +46,16 @@ fi
 
 PODMAN_ARGS+=(--build-arg "VENDOR_MIRROR=https://ftp.mirror.koma.systems/vendor/")
 
-if [[ $TARGET == "host" ]]; then
-  PODMAN_ARGS+=(--build-arg "ARCH=${HOST_ARCH}")
-elif [[ $TARGET =~ x64|x86_64 ]]; then
-  PODMAN_ARGS+=(--build-arg "ARCH=x64")
-elif [[ $TARGET =~ arm64|aarch64 ]]; then
-  PODMAN_ARGS+=(--build-arg "ARCH=aarch64")
-elif [[ $TARGET != "all" ]]; then
-  echo "Unknown target: ${TARGET}"
-  exit 1
-fi
-
 buildah bud \
   --layers \
   -t ${BUILDER_TAG} \
   -f Containerfile \
   "${PODMAN_ARGS[@]}" \
   .
+
+id=$(podman create ${BUILDER_TAG})
+podman cp $id:/osv/build - | bsdtar -xvf - --include='*.img' --include='*.cmdline'
+podman rm $id 1>/dev/null
 
 echo "To run the container, execute:"
 echo "  podman run -it --rm --device /dev/kvm --group-add=keep-groups ${BUILDER_TAG}"

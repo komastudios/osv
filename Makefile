@@ -148,9 +148,9 @@ all: $(out)/loader.img links $(out)/zfs_builder-stripped.elf
 ifeq ($(arch),x64)
 all: $(out)/vmlinuz.bin
 endif
-ifeq ($(arch),aarch64)
-all: $(out)/zfs_builder.img
-endif
+# ifeq ($(arch),aarch64)
+# all: $(out)/zfs_builder.img
+# endif
 .PHONY: all
 
 links:
@@ -531,8 +531,8 @@ $(out)/preboot.bin: $(out)/preboot.elf
 edata = $(shell readelf --syms $(out)/loader.elf | grep "\.edata" | awk '{print "0x" $$2}')
 image_size = $$(( $(edata) - $(kernel_vm_base) ))
 
-builder_edata = $(shell readelf --syms $(out)/zfs_builder.elf | grep "\.edata" | awk '{print "0x" $$2}')
-builder_image_size = $$(( $(builder_edata) - $(kernel_vm_base) ))
+# builder_edata = $(shell readelf --syms $(out)/zfs_builder.elf | grep "\.edata" | awk '{print "0x" $$2}')
+# builder_image_size = $$(( $(builder_edata) - $(kernel_vm_base) ))
 
 $(out)/loader.img: $(out)/preboot.bin $(out)/loader-stripped.elf
 	$(call quiet, dd if=$(out)/preboot.bin of=$@ > /dev/null 2>&1, DD $@ preboot.bin)
@@ -540,11 +540,11 @@ $(out)/loader.img: $(out)/preboot.bin $(out)/loader-stripped.elf
 	$(call quiet, scripts/imgedit.py setsize_aarch64 "-f raw $@" $(image_size), IMGEDIT $@)
 	$(call quiet, scripts/imgedit.py setargs "-f raw $@" $(cmdline), IMGEDIT $@)
 
-$(out)/zfs_builder.img: $(out)/preboot.bin $(out)/zfs_builder-stripped.elf
-	$(call quiet, dd if=$(out)/preboot.bin of=$@ > /dev/null 2>&1, DD $@ preboot.bin)
-	$(call quiet, dd if=$(out)/zfs_builder-stripped.elf of=$@ conv=notrunc obs=4096 seek=16 > /dev/null 2>&1, DD $@ zfs_builder-stripped.elf)
-	$(call quiet, scripts/imgedit.py setsize_aarch64 "-f raw $@" $(builder_image_size), IMGEDIT $@)
-	$(call quiet, scripts/imgedit.py setargs "-f raw $@" $(cmdline), IMGEDIT $@)
+# $(out)/zfs_builder.img: $(out)/preboot.bin $(out)/zfs_builder-stripped.elf
+# 	$(call quiet, dd if=$(out)/preboot.bin of=$@ > /dev/null 2>&1, DD $@ preboot.bin)
+# 	$(call quiet, dd if=$(out)/zfs_builder-stripped.elf of=$@ conv=notrunc obs=4096 seek=16 > /dev/null 2>&1, DD $@ zfs_builder-stripped.elf)
+# 	$(call quiet, scripts/imgedit.py setsize_aarch64 "-f raw $@" $(builder_image_size), IMGEDIT $@)
+# 	$(call quiet, scripts/imgedit.py setargs "-f raw $@" $(cmdline), IMGEDIT $@)
 
 endif # aarch64
 

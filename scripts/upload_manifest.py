@@ -144,6 +144,13 @@ def main():
 
     (options, args) = opt.parse_args()
 
+    arch = options.arch
+
+    build_arch = arch
+    if arch in ['x64', 'x86_64']:
+        arch = 'x86_64'
+        build_arch = 'x64'
+
     depends = StringIO()
     if options.depends:
         depends = file(options.depends, 'w')
@@ -153,18 +160,20 @@ def main():
 
     image_path = os.path.abspath(options.output)
     upload_port = find_free_port()
-    arch = options.arch
-    if arch == 'x64':
-        arch = 'x86_64'
 
-    if arch == 'aarch64':
-        console = ''
-        zfs_builder_name = 'zfs_builder.img'
-    else:
-        console = '--console=serial'
-        zfs_builder_name = 'zfs_builder-stripped.elf'
+    # if arch == 'aarch64':
+    #     console = ''
+    #     zfs_builder_name = 'zfs_builder.img'
+    # else:
+    #     console = '--console=serial'
+    #     zfs_builder_name = 'zfs_builder-stripped.elf'
+    
+    console = '--console=serial'
+    zfs_builder_name = 'zfs_builder-stripped.elf'
 
-    osv = subprocess.Popen('cd ../..; scripts/run.py -k --kernel-path build/release/%s --arch=%s --vnc none -m 512 -c1 -i "%s" --block-device-cache unsafe -s -e "%s --norandom --nomount --noinit --preload-zfs-library /tools/mkfs.so; /tools/cpiod.so --prefix /zfs/zfs/; /zfs.so set compression=off osv" --forward tcp:127.0.0.1:%s-:10000' % (zfs_builder_name,arch,image_path,console,upload_port), shell=True, stdout=subprocess.PIPE)
+    sys.stderr.write('[upload_manifest.py] manifest: %s\n' % manifest_path)
+    sys.stderr.write('[upload_manifest.py] CMD: cd ../..; scripts/run.py -k --kernel-path build/release.%s/%s --hypervisor=qemu --arch=%s --vnc none -m 512 -c1 -i "%s" --block-device-cache unsafe -s -e "%s --norandom --nomount --noinit --preload-zfs-library /tools/mkfs.so; /tools/cpiod.so --prefix /zfs/zfs/; /zfs.so set compression=off osv" --forward tcp:127.0.0.1:%s-:10000\n' % (build_arch,zfs_builder_name,arch,image_path,console,upload_port))
+    osv = subprocess.Popen('cd ../..; scripts/run.py -k --kernel-path build/release.%s/%s --hypervisor=qemu --arch=%s --vnc none -m 512 -c1 -i "%s" --block-device-cache unsafe -s -e "%s --norandom --nomount --noinit --preload-zfs-library /tools/mkfs.so; /tools/cpiod.so --prefix /zfs/zfs/; /zfs.so set compression=off osv" --forward tcp:127.0.0.1:%s-:10000' % (build_arch,zfs_builder_name,arch,image_path,console,upload_port), shell=True, stdout=subprocess.PIPE)
 
     upload(osv, manifest, depends, upload_port)
 

@@ -1,4 +1,3 @@
-ARG ARCH=""
 ARG BUILD_ARGS="image=default fs=rofs"
 
 ## --- base image
@@ -112,15 +111,13 @@ FROM builder AS build
 
 WORKDIR /osv
 
-ARG ARCH
+COPY docker/scripts/assemble.sh \
+     docker/scripts/run.sh \
+     /osv/docker/scripts/
+
 ARG BUILD_ARGS
 
-COPY docker/scripts/assemble.sh \
-     /osv/docker/scripts/
 RUN docker/scripts/assemble.sh ${BUILD_ARGS}
-
-COPY docker/scripts/run.sh \
-     /osv/docker/scripts/
 
 EXPOSE 8000
 ENTRYPOINT docker/scripts/run.sh
