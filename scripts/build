@@ -286,7 +286,7 @@ libgcc_s_dir=$(dirname $(readlink -f ${libgcc_s_path}))
 	export OBJCOPY
 	export CROSS_PREFIX
 	# Run what we wanted to run. It will inherit everything we exported above.
-	scripts/module.py $j_arg build -c "$modules" $usrskel_arg $no_required_arg
+	scripts/module.py $j_arg build -c "$modules" $usrskel_arg $no_required_arg || exit 1
 )
 
 if [[ ${vars[append_manifest]} == "true" && -f "$OSV_BUILD_PATH/append.manifest" ]]; then
