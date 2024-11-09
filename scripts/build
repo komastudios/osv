@@ -238,11 +238,11 @@ fi
 echo "Host arch: $host_arch"
 echo "Target arch: $arch"
 
-CC=$(CROSS_PREFIX)gcc
-CXX=$(CROSS_PREFIX)g++
-LD=$(CROSS_PREFIX)ld.bfd
-STRIP=$(CROSS_PREFIX)strip
-OBJCOPY=$(CROSS_PREFIX)objcopy
+CC=${CROSS_PREFIX}gcc
+CXX=${CROSS_PREFIX}g++
+LD=${CROSS_PREFIX}ld.bfd
+STRIP=${CROSS_PREFIX}strip
+OBJCOPY=${CROSS_PREFIX}objcopy
 
 if [[ "$host_arch" == "x86_64" && "$arch" == 'aarch64' ]]; then
 		echo "Cross-compiling for aarch64 from x86_64"
