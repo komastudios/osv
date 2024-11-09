@@ -1,3 +1,4 @@
+ARG ARCH=""
 ARG BUILD_ARGS="image=default fs=rofs"
 
 ## --- base image
