@@ -238,11 +238,19 @@ fi
 echo "Host arch: $host_arch"
 echo "Target arch: $arch"
 
-CC=gcc
-CXX=g++
+CC=$(CROSS_PREFIX)gcc
+CXX=$(CROSS_PREFIX)g++
+LD=$(CROSS_PREFIX)ld.bfd
+STRIP=$(CROSS_PREFIX)strip
+OBJCOPY=$(CROSS_PREFIX)objcopy
+
 if [[ "$host_arch" == "x86_64" && "$arch" == 'aarch64' ]]; then
 		echo "Cross-compiling for aarch64 from x86_64"
     CC=${CROSS_PREFIX:-aarch64-linux-gnu-}gcc
+		CXX=${CROSS_PREFIX:-aarch64-linux-gnu-}g++
+		LD=${CROSS_PREFIX:-aarch64-linux-gnu-}ld.bfd
+		STRIP=${CROSS_PREFIX:-aarch64-linux-gnu-}strip
+		OBJCOPY=${CROSS_PREFIX:-aarch64-linux-gnu-}objcopy
 fi
 
 libgcc_s_path=$(${CC} -print-file-name=libgcc_s.so.1)
