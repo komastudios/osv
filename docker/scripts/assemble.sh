@@ -25,6 +25,9 @@ elif [ "${ARCH}" != "x64" ]; then
   exit 1
 fi
 
+echo "ARCHS=${ARCHS[@]}"
+echo "BUILD_ARGS=${BUILD_ARGS[@]}"
+
 for b_arch in "${ARCHS[@]}"; do
   echo "Building image (${b_arch})"
 

@@ -4,14 +4,13 @@
 #
 #   ./build_container.sh image=httpserver-html5-gui-and-cli.fg host
 
-
-BUILDER_TAG=${BUILDER_TAG:-komastudios/osv}
+builder_tag=${BUILDER_TAG:-komastudios/osv}
 
 show_usage() {
   echo "Usage: $0 [image=<image_name>] [fs=<zfs|rofs|rofs_with_zfs|ramfs|virtiofs>]"
 }
 
-BUILD_ARGS=()
+build_args=()
 
 for arg in "$@"; do
   case $arg in
@@ -22,7 +21,7 @@ for arg in "$@"; do
     *=*)
       key=${arg%%=*}
       value=${arg#*=}
-      BUILD_ARGS+=($arg)
+      build_args+=("${arg}")
       ;;
     *)
       echo "Unknown argument: $arg"
@@ -38,27 +37,26 @@ if [ "$(uname -m)" != "x86_64" ]; then
 fi
 HOST_ARCH=x64
 
-PODMAN_ARGS=()
-
-if [ ${#BUILD_ARGS[@]} -ne 0 ]; then
-  PODMAN_ARGS+=(--build-arg "BUILD_ARGS=${BUILD_ARGS[@]}")
+podman_args=()
+if [[ ${#build_args[@]} -ne 0 ]]; then
+  podman_args+=(--build-arg "BUILD_ARGS=${build_args[*]}")
 fi
 
-PODMAN_ARGS+=(--build-arg "VENDOR_MIRROR=https://ftp.mirror.koma.systems/vendor/")
+podman_args+=(--build-arg "VENDOR_MIRROR=https://ftp.mirror.koma.systems/vendor/")
 
 buildah bud \
-  --layers \
-  -t ${BUILDER_TAG} \
+  "${podman_args[@]}" \
+  -t ${builder_tag} \
   -f Containerfile \
-  "${PODMAN_ARGS[@]}" \
+  --layers \
   .
 
-id=$(podman create ${BUILDER_TAG})
+id=$(podman create ${builder_tag})
 podman cp $id:/osv/build - | bsdtar -xvf - --include='*.img' --include='*.cmdline'
 podman rm $id 1>/dev/null
 
 echo "To run the container, execute:"
-echo "  podman run -it --rm --device /dev/kvm --group-add=keep-groups ${BUILDER_TAG}"
+echo "  podman run -it --rm --device /dev/kvm --group-add=keep-groups ${builder_tag}"
 echo "  "
 echo "Or using the helper script:"
 echo "  ./run_container.sh"

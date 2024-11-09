@@ -117,7 +117,16 @@ COPY docker/scripts/assemble.sh \
 
 ARG BUILD_ARGS
 
-RUN docker/scripts/assemble.sh ${BUILD_ARGS}
+# # full build
+RUN ARCH=aarch64 docker/scripts/assemble.sh ${BUILD_ARGS}
+
+# # partial build
+# RUN ARCH=x64 docker/scripts/assemble.sh ${BUILD_ARGS}
+# 
+# # finish build:
+# #   podman run -it --rm --name osv --entrypoint /bin/bash komastudios/osv
+# #   ARCH=aarch64 docker/scripts/assemble.sh image=httpserver-html5-gui-and-cli.fg
 
 EXPOSE 8000
-ENTRYPOINT docker/scripts/run.sh
+
+#ENTRYPOINT docker/scripts/run.sh
