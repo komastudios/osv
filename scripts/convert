@@ -5,9 +5,15 @@
 
 trap 'echo "$0 failed: $BASH_COMMAND" >&2; exit $?' ERR
 
+if [ "${b_arch}" == "aarch64" ]; then
+    img_name=disk.img
+else
+    img_name=usr.img
+fi
+
 # We assume "scripts/build" has already been run successfully
 DIR=build/`readlink build/last`
-INPUT=$DIR/usr.img
+INPUT=$DIR/$img_name
 if test ! -f $INPUT
 then
     echo "$INPUT not found. Please build an image with scripts/build first."

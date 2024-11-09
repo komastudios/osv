@@ -37,14 +37,22 @@ DST_ROOT=build
 
 for b_arch in "${ARCHS[@]}"; do
   echo "Building image (${b_arch})"
+  
+  if [ "${b_arch}" == "aarch64" ]; then
+    b_target=uush
+  else
+    b_target=default
+  fi
+
+  b_cmd='./scripts/build -j$(nproc) arch=${b_arch} image=${b_image} && ./scripts/convert raw'
 
   CONTAINER_ID=$(podman create \
     -it \
-    --env "b_image=${TARGET}" \
+    --env "b_image=${b_target}" \
     --env "b_arch=${b_arch}" \
     --device /dev/kvm --group-add=keep-groups \
     ${BUILDER_TAG} \
-    /bin/bash -c './scripts/build -j$(nproc) arch=${b_arch} image=${b_image} && ./scripts/convert raw')
+    /bin/bash -c "$b_cmd")
 
   if [ $? -ne 0 ] || [ -z "${CONTAINER_ID}" ]; then
     echo "Failed to create container"

@@ -87,6 +87,8 @@ RUN chmod u+x /usr/local/bin/capstan
 
 RUN scripts/download_aarch64_packages.py
 
+RUN ln -s libyaml-cpp.so.0.7 /usr/lib/aarch64-linux-gnu/libyaml-cpp.so
+
 WORKDIR /git-repos/osv
 CMD /bin/bash
 
