@@ -235,8 +235,12 @@ if [[ ${vars[append_manifest]} == "true" && $modules == "!default" ]]; then
 	modules="empty"
 fi
 
+echo "Host arch: $host_arch"
+echo "Target arch: $arch"
+
 CC=gcc
 if [[ "$host_arch" == "x86_64" && "$arch" == 'aarch64' ]]; then
+		echo "Cross-compiling for aarch64 from x86_64"
     CC=${CROSS_PREFIX:-aarch64-linux-gnu-}gcc
 fi
 

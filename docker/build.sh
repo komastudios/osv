@@ -16,7 +16,7 @@ else
   ARCHS+=(${ARCH})
 fi
 
-TARGET=${1:-default}
+TARGET=${1:-native-example}
 TARGET_REF=${TARGET//[^[:alnum:]]/-}
 
 podman build \
@@ -38,20 +38,28 @@ DST_ROOT=build
 for b_arch in "${ARCHS[@]}"; do
   echo "Building image (${b_arch})"
   
+  EXTRA_ARGS=()
+  b_target=${TARGET}
   if [ "${b_arch}" == "aarch64" ]; then
-    b_target=uush
+    #b_target=empty
     img_name=disk.img
+    qemu_arch=aarch64
+    CROSS_PREFIX=aarch64-linux-gnu-
+    EXTRA_ARGS+=(--env "ARCH=${b_arch}")
+    EXTRA_ARGS+=(--env "CROSS_PREFIX=${CROSS_PREFIX}")
   else
-    b_target=default
     img_name=usr.img
+    qemu_arch=x86_64
   fi
 
-  b_cmd='./scripts/build -j$(nproc) arch=${b_arch} image=${b_image}'
+  b_cmd='./scripts/build -j$(nproc) arch=${b_arch} image=${b_image} fs=rofs && ./scripts/run.py --arch=${qemu_arch} --dry-run'
 
   CONTAINER_ID=$(podman create \
     -it \
     --env "b_image=${b_target}" \
     --env "b_arch=${b_arch}" \
+    --env "qemu_arch=${qemu_arch}" \
+    "${EXTRA_ARGS[@]}" \
     --device /dev/kvm --group-add=keep-groups \
     ${BUILDER_TAG} \
     /bin/bash -c "$b_cmd")
@@ -74,6 +82,9 @@ for b_arch in "${ARCHS[@]}"; do
 
   echo "Copying image: ${CONTAINER_ID}:${SRC_DIR}/${img_name} -> ${DST_ROOT}/${DST_NAME}.img"
   mkdir -p ${DST_ROOT}
+  if [ "${TARGET}" == "native-example" ]; then
+    podman cp ${CONTAINER_ID}:/git-repos/osv/apps/native-example/hello ${DST_ROOT}/hello.${b_arch}
+  fi
   podman cp ${CONTAINER_ID}:${SRC_DIR}/${img_name} ${DST_ROOT}/${DST_NAME}.img
   podman cp ${CONTAINER_ID}:${SRC_DIR}/loader.img ${DST_ROOT}/loader.${b_arch}.img
   podman cp ${CONTAINER_ID}:${SRC_DIR}/loader.elf ${DST_ROOT}/loader.${b_arch}.elf
@@ -84,5 +95,5 @@ for b_arch in "${ARCHS[@]}"; do
   fi
 
   # Clean up
-  podman rm -f ${CONTAINER_ID} || exit 1
+  #podman rm -f ${CONTAINER_ID} || exit 1
 done
