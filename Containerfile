@@ -48,7 +48,9 @@ RUN dpkg --add-architecture arm64 \
         libboost-chrono1.74-dev:arm64 \
         gcc-aarch64-linux-gnu \
         g++-aarch64-linux-gnu \
-        binutils-aarch64-linux-gnu
+        binutils-aarch64-linux-gnu \
+        nodejs \
+        npm
 
 ARG VENDOR_MIRROR=https://
 ENV VENDOR_MIRROR=${VENDOR_MIRROR}
@@ -58,9 +60,6 @@ COPY scripts/setup.py scripts/linux_distro.py /osv/scripts/
 # - update all required packages in case they have changed
 WORKDIR /osv
 RUN scripts/setup.py
-
-RUN apt-get install -y \
-        nodejs
 
 # - install Capstan
 ADD ${VENDOR_MIRROR}github.com/cloudius-systems/capstan/releases/latest/download/capstan /usr/local/bin/
