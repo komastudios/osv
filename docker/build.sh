@@ -16,8 +16,7 @@ else
   ARCHS+=(${ARCH})
 fi
 
-TARGET=${1:-cli}
-
+TARGET=${1:-default}
 TARGET_REF=${TARGET//[^[:alnum:]]/-}
 
 podman build \
@@ -41,10 +40,11 @@ for b_arch in "${ARCHS[@]}"; do
 
   CONTAINER_ID=$(podman create \
     -it \
+    --env "b_image=${TARGET}" \
     --env "b_arch=${b_arch}" \
     --device /dev/kvm --group-add=keep-groups \
     ${BUILDER_TAG} \
-    /bin/bash -c './scripts/build -j$(nproc) arch=$b_arch && ./scripts/convert raw')
+    /bin/bash -c './scripts/build -j$(nproc) arch=${b_arch} image=${b_image} && ./scripts/convert raw')
 
   if [ $? -ne 0 ] || [ -z "${CONTAINER_ID}" ]; then
     echo "Failed to create container"

@@ -18,6 +18,45 @@ COPY ./etc/console-setup /etc/default/console-setup
 
 RUN apt-get update -y && apt-get install -y git python3 python3-distro
 
+RUN dpkg --add-architecture arm64 \
+ && echo "deb [arch=arm64] http://ports.ubuntu.com/ jammy main restricted\n" \
+         "deb [arch=arm64] http://ports.ubuntu.com/ jammy-updates main restricted\n" \
+         "deb [arch=arm64] http://ports.ubuntu.com/ jammy universe\n" \
+         "deb [arch=arm64] http://ports.ubuntu.com/ jammy-updates universe\n" \
+         "deb [arch=arm64] http://ports.ubuntu.com/ jammy multiverse\n" \
+         "deb [arch=arm64] http://ports.ubuntu.com/ jammy-updates multiverse\n" \
+         "deb [arch=arm64] http://ports.ubuntu.com/ jammy-backports main restricted universe multiverse" \
+  | tee /etc/apt/sources.list.d/arm-cross-compile-sources.list \
+ && cp /etc/apt/sources.list "/etc/apt/sources.list.`date`.backup" \
+ && sed -i -E "s/(deb)\ (http:.+)/\1\ [arch=amd64]\ \2/" /etc/apt/sources.list \
+ && apt-get update -y \
+ && apt-get install -y \
+        libc6-arm64-cross \
+        libc6-dev-arm64-cross \
+        libstdc++-11-dev-arm64-cross \
+        libstdc++6-arm64-cross \
+        openssl:arm64 \
+        libssl-dev:arm64 \
+        libedit-dev:arm64 \
+        libncurses5-dev:arm64 \
+        libyaml-cpp-dev:arm64 \
+        libboost1.74-dev:arm64 \
+        libboost-system1.74:arm64 \
+        libboost-system1.74-dev:arm64 \
+        libboost-filesystem1.74:arm64 \
+        libboost-filesystem1.74-dev:arm64 \
+        libboost-test1.74:arm64 \
+        libboost-test1.74-dev:arm64 \
+        libboost-timer1.74:arm64 \
+        libboost-timer1.74-dev:arm64 \
+        libboost-program-options1.74:arm64 \
+        libboost-program-options1.74-dev:arm64 \
+        libboost-chrono1.74:arm64 \
+        libboost-chrono1.74-dev:arm64 \
+        gcc-aarch64-linux-gnu \
+        g++-aarch64-linux-gnu \
+        binutils-aarch64-linux-gnu
+
 #
 # PREPARE ENVIRONMENT
 #
