@@ -2,6 +2,7 @@
 
 import re
 import os
+import sys
 import subprocess
 import operator
 import argparse
@@ -117,6 +118,7 @@ def make_cmd(cmdline, j, jobserver):
         ret += ' -j'
     elif j is not None:
         ret += ' -j' + j
+    sys.stderr.write("Running: %s\n" % ret)
     return ret
 
 def make_modules(modules, args):

@@ -83,7 +83,9 @@ for b_arch in "${ARCHS[@]}"; do
   echo "Copying image: ${CONTAINER_ID}:${SRC_DIR}/${img_name} -> ${DST_ROOT}/${DST_NAME}.img"
   mkdir -p ${DST_ROOT}
   if [ "${TARGET}" == "native-example" ]; then
+    echo "Copying binary: ${CONTAINER_ID}:/git-repos/osv/apps/native-example/hello -> ${DST_ROOT}/hello.${b_arch}"
     podman cp ${CONTAINER_ID}:/git-repos/osv/apps/native-example/hello ${DST_ROOT}/hello.${b_arch}
+    file ${DST_ROOT}/hello.${b_arch}
   fi
   podman cp ${CONTAINER_ID}:${SRC_DIR}/${img_name} ${DST_ROOT}/${DST_NAME}.img
   podman cp ${CONTAINER_ID}:${SRC_DIR}/loader.img ${DST_ROOT}/loader.${b_arch}.img
@@ -95,5 +97,5 @@ for b_arch in "${ARCHS[@]}"; do
   fi
 
   # Clean up
-  #podman rm -f ${CONTAINER_ID} || exit 1
+  podman rm -f ${CONTAINER_ID} || exit 1
 done
