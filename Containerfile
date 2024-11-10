@@ -104,29 +104,34 @@ COPY scripts/ /osv/scripts/
 COPY static/ /osv/static/
 COPY tests/ /osv/tests/
 COPY tools/ /osv/tools/
-WORKDIR /osv
-
-## --- final build image
-FROM builder AS build
-
-WORKDIR /osv
 
 COPY docker/scripts/assemble.sh \
      docker/scripts/run.sh \
      /osv/docker/scripts/
 
-ARG BUILD_ARGS
+WORKDIR /osv
 
-# # full build
+## --- build image (x64)
+FROM builder AS build-x64
+ARG BUILD_ARGS
+RUN ARCH=x64 docker/scripts/assemble.sh ${BUILD_ARGS}
+
+## --- build image (aarch64)
+FROM builder AS build-aarch64
+ARG BUILD_ARGS
 RUN ARCH=aarch64 docker/scripts/assemble.sh ${BUILD_ARGS}
 
-# # partial build
-# RUN ARCH=x64 docker/scripts/assemble.sh ${BUILD_ARGS}
-# 
-# # finish build:
-# #   podman run -it --rm --name osv --entrypoint /bin/bash komastudios/osv
-# #   ARCH=aarch64 docker/scripts/assemble.sh image=httpserver-html5-gui-and-cli.fg
+## --- deployment image
+FROM builder AS deploy
+COPY --from=build-x64 /osv/build/release.x64/ /osv/build/release.x64/
+COPY --from=build-aarch64 /osv/build/release.aarch64/ /osv/build/release.aarch64/
 
 EXPOSE 8000
 
-#ENTRYPOINT docker/scripts/run.sh
+## --- runtime entry
+# ENTRYPOINT docker/scripts/run.sh
+
+## --- Custom build commands
+# # finish build:
+# #   podman run -it --rm --name osv --entrypoint /bin/bash komastudios/osv
+# #   ARCH=aarch64 docker/scripts/assemble.sh image=httpserver-html5-gui-and-cli.fg

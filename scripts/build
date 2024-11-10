@@ -215,6 +215,10 @@ ramfs)
 	exit 2
 esac
 
+if [[ "$host_arch" == "aarch64" || "$arch" == "aarch64" ]]; then
+	vars[create_disk]="true"
+fi
+
 if test -n "${vars[usrskel]}"
 then
 	# Override default skel
